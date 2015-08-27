@@ -9,7 +9,7 @@ from setuptools import setup
 setup(
   name = 'pytest-expect',
   packages = ['pytest_delayedassert'],
-  version=__import__('pytest_delayedassert').__version__,
+  version= '1.0',
   description = 'A pytest plugin that allows multiple failures per test',
   author = 'Brian Okken',
   author_email = 'brian@pythontesting.net',
