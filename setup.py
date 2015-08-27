@@ -8,8 +8,8 @@ from setuptools import setup
 
 setup(
   name = 'pytest-expect',
-  packages = ['pytest_expect'], 
-  version=__import__('pytest_expect').__version__,
+  packages = ['pytest_delayedassert'],
+  version=__import__('pytest_delayedassert').__version__,
   description = 'A pytest plugin that allows multiple failures per test',
   author = 'Brian Okken',
   author_email = 'brian@pythontesting.net',
@@ -28,7 +28,7 @@ setup(
                  'Programming Language :: Python :: 3.4',
                  ],
    # the following makes a plugin available to py.test
-   entry_points={'pytest11': ['expect = pytest_expect.plugin']}
+   entry_points={'pytest11': ['expect = pytest_delayedassert.plugin']}
 )
 
 

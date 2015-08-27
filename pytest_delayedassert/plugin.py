@@ -3,7 +3,7 @@ import inspect
 import os.path
 
 @pytest.fixture
-def expect(request):
+def delayed_assert(request):
     def do_expect(expr, msg=''):
         if not expr:
             _log_failure(request.node, msg)
