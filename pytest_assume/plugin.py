@@ -7,7 +7,7 @@ def pytest_namespace():
         if not expr:
             # get filename, line, and context
             (filename, line, funcname, contextlist) = inspect.stack()[1][1:5]
-            filename = os.path.basename(filename)
+            filename = os.path.relpath(filename)
             context = contextlist[0]
             # format entry
             msg = '%s\n' % msg if msg else ''
