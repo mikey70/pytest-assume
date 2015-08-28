@@ -7,15 +7,14 @@ import os
 from setuptools import setup
 
 setup(
-  name = 'pytest-expect',
-  packages = ['pytest_delayedassert'],
+  name = 'pytest-assume',
+  packages = ['pytest_assume'],
   version= '1.0',
   description = 'A pytest plugin that allows multiple failures per test',
-  author = 'Brian Okken',
-  author_email = 'brian@pythontesting.net',
-  maintainer = 'Brian Okken',
-  maintainer_email = 'brian@pythontesting.net',
-  url = 'http://pythontesting.net/pytest-expect', 
+  author = 'Brian Okken/Ashley Straw',
+  author_email = 'as.fireflash38@gmail.com',
+  maintainer = 'Ashley Straw',
+  maintainer_email = 'as.fireflash38@gmail.com',
   license='MIT',
   keywords = ['testing', 'pytest', 'assert'], 
   install_requires=['pytest>=2.7'],
@@ -28,7 +27,7 @@ setup(
                  'Programming Language :: Python :: 3.4',
                  ],
    # the following makes a plugin available to py.test
-   entry_points={'pytest11': ['expect = pytest_delayedassert.plugin']}
+   entry_points={'pytest11': ['assume = pytest_assume.plugin']}
 )
 
 
