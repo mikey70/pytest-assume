@@ -8,7 +8,7 @@ A pytest plugin that allows multiple failures per test
 
 Sample Usage:
 ```python
-    import pytest
+import pytest
     
 @pytest.mark.parametrize(('x', 'y'), [(1, 1), (1, 0), (0, 1)])
 def test_simple_assume(x, y):
