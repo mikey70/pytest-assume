@@ -7,7 +7,7 @@ A pytest plugin that allows multiple failures per test
 
 
 Sample Usage:
-
+```python
     import pytest
     
     @pytest.mark.parametrize(
@@ -15,7 +15,7 @@ Sample Usage:
         pytest.assume(1 == 1)
         pytest.assume(1 == 0)
         pytest.assume(False)
-        
+```        
         
     ======================================== FAILURES =========================================
     _________________________________ test_simple_assume[1-1] _________________________________
