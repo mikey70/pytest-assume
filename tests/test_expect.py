@@ -22,7 +22,7 @@ def test_failing_expect(testdir):
         """)
     result = testdir.runpytest()
     assert '1 failed' in result.stdout.str()
-    assert 'Failed Assumptions:1' in result.stdout.str()
+    assert 'Failed Assumptions: 1' in result.stdout.str()
 
 
 def test_passing_expect_doesnt_cloak_assert(testdir):
@@ -49,7 +49,7 @@ def test_failing_expect_doesnt_cloak_assert(testdir):
     result = testdir.runpytest()
     assert '1 failed' in result.stdout.str()
     assert 'AssertionError' in result.stdout.str()
-    assert 'Failed Assumptions:1' in result.stdout.str()
+    assert 'Failed Assumptions: 1' in result.stdout.str()
 
 
 def test_msg_is_in_output(testdir):
@@ -63,7 +63,39 @@ def test_msg_is_in_output(testdir):
         """)
     result = testdir.runpytest()
     assert '1 failed' in result.stdout.str()
-    assert 'Failed Assumptions:1' in result.stdout.str()
+    assert 'Failed Assumptions: 1' in result.stdout.str()
     assert 'a:1 b:2' in result.stdout.str()
 
+
+def test_with_locals(testdir):
+    testdir.makepyfile(
+        """
+        import pytest
+        def test_func():
+            a = 1
+            b = 2
+            pytest.assume(a == b)
+        """)
+    result = testdir.runpytest("--showlocals")
+    stdout = result.stdout.str()
+    assert '1 failed' in stdout
+    assert 'Failed Assumptions: 1' in stdout
+    assert "a          = 1" in stdout
+    assert "b          = 2" in stdout
+
+def test_without_locals(testdir):
+    testdir.makepyfile(
+        """
+        import pytest
+        def test_func():
+            a = 1
+            b = 2
+            pytest.assume(a == b)
+        """)
+    result = testdir.runpytest()
+    stdout = result.stdout.str()
+    assert '1 failed' in stdout
+    assert 'Failed Assumptions: 1' in stdout
+    assert "a          = 1" not in stdout
+    assert "b          = 2" not in stdout
 
