@@ -25,13 +25,12 @@ def pytest_namespace():
         :return: None
         """
         if not expr:
-            # get filename, line, and context
             (frame, filename, line, funcname, contextlist) = inspect.stack()[1][0:5]
+            # get filename, line, and context
             filename = os.path.relpath(filename)
-            context = contextlist[0]
+            context = contextlist[0].lstrip() if not msg else msg
             # format entry
-            msg = '%s\n' % msg if msg else ''
-            entry = '>%s%s%s:%s\n' % (context, msg, filename, line)
+            entry = "{filename}:{line}: AssumptionFailure\n\t{context}".format(**locals())
             # add entry
             pytest._failed_assumptions.append(entry)
             if pytest.config.option.showlocals:
@@ -83,10 +82,10 @@ def pytest_runtest_makereport(item, call):
         else:
             if pytest._assumption_locals:
                 assume_data = zip(pytest._failed_assumptions, pytest._assumption_locals)
-                longrepr = ["{}\n{}".format(assumption, "\n".join(flocals))
+                longrepr = ["{}\n{}\n\n".format(assumption, "\n".join(flocals))
                             for assumption, flocals in assume_data]
             else:
-                longrepr = ["\n".join(pytest._failed_assumptions)]
+                longrepr = ["\n\n".join(pytest._failed_assumptions)]
             longrepr.append("-" * 60)
             longrepr.append(summary)
             report.longrepr = '\n'.join(longrepr)
