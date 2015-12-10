@@ -19,6 +19,7 @@ setup(
   keywords = ['testing', 'pytest', 'assert'], 
   install_requires=['pytest>=2.7'],
   download_url = 'https://github.com/astraw38/pytest-assume/tarball/1.1',
+  url = 'https://github.com/astraw38/pytest-assume',
   classifiers = [
                  'Intended Audience :: Developers',
                  'Topic :: Software Development :: Testing',
