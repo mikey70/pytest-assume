@@ -1,10 +1,18 @@
 # pytest-assume
 A pytest plugin that allows multiple failures per test
 
+Forked from Brian Okken's work with ['pytest-expect'](https://github.com/okken/pytest-expect), there are a few changes/improvements:
+
+
+1. Showlocals support
+2. Global usage support (Does not need a fixture)
+3. Output tweaking
+
 ## Installation
 
-  pip install git+https://github.com/astraw38/pytest-assume.git
-
+  `pip install git+https://github.com/astraw38/pytest-assume.git`  
+  or   
+  `pip install pytest-assume`  
 
 Sample Usage:
 ```python
