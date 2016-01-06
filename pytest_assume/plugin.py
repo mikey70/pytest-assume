@@ -3,7 +3,10 @@ import os.path
 
 import pytest
 
-from py.io import saferepr
+try:
+    from py.io import saferepr
+except ImportError:
+    saferepr = repr
 
 
 def pytest_namespace():
@@ -47,17 +50,6 @@ def pytest_namespace():
             'assume': assume}
 
 
-def pytest_runtest_setup(item):
-    """
-    Clear any stored assumptions or locals.
-
-    :param item:
-    :return:
-    """
-    del pytest._failed_assumptions[:]
-    del pytest._assumption_locals[:]
-
-
 @pytest.mark.hookwrapper
 def pytest_runtest_makereport(item, call):
     """
@@ -73,20 +65,32 @@ def pytest_runtest_makereport(item, call):
     """
     outcome = yield
     report = outcome.get_result()
-    if call.when == "call" and pytest._failed_assumptions:
-        summary = 'Failed Assumptions: %s' % len(pytest._failed_assumptions)
-        if report.longrepr:
-            # Do we want to have the locals displayed here as well?
-            # I'd say no, because the longrepr would already be displaying locals.
-            report.sections.append((summary, "\n".join(pytest._failed_assumptions)))
+    failed_assumptions = getattr(pytest, "_failed_assumptions", [])
+    assumption_locals = getattr(pytest, "_assumption_locals", [])
+    evalxfail = getattr(item, '_evalxfail', None)
+    if call.when == "call" and failed_assumptions:
+        if evalxfail and evalxfail.wasvalid() and evalxfail.istrue():
+            report.outcome = "skipped"
+            report.wasxfail = evalxfail.getexplanation()
         else:
-            if pytest._assumption_locals:
-                assume_data = zip(pytest._failed_assumptions, pytest._assumption_locals)
-                longrepr = ["{}\n{}\n\n".format(assumption, "\n".join(flocals))
-                            for assumption, flocals in assume_data]
+            summary = 'Failed Assumptions: %s' % len(failed_assumptions)
+            if report.longrepr:
+                # Do we want to have the locals displayed here as well?
+                # I'd say no, because the longrepr would already be displaying locals.
+                report.sections.append((summary, "\n".join(failed_assumptions)))
             else:
-                longrepr = ["\n\n".join(pytest._failed_assumptions)]
-            longrepr.append("-" * 60)
-            longrepr.append(summary)
-            report.longrepr = '\n'.join(longrepr)
-        report.outcome = "failed"
+                if assumption_locals:
+                    assume_data = zip(failed_assumptions, assumption_locals)
+                    longrepr = ["{}\n{}\n\n".format(assumption, "\n".join(flocals))
+                                for assumption, flocals in assume_data]
+                else:
+                    longrepr = ["\n\n".join(failed_assumptions)]
+                longrepr.append("-" * 60)
+                longrepr.append(summary)
+                report.longrepr = '\n'.join(longrepr)
+            report.outcome = "failed"
+
+    if hasattr(pytest, "_failed_assumptions"):
+        del pytest._failed_assumptions[:]
+    if hasattr(pytest, "_assumption_locals"):
+        del pytest._assumption_locals[:]
