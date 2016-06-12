@@ -81,7 +81,7 @@ def pytest_runtest_makereport(item, call):
             else:
                 if assumption_locals:
                     assume_data = zip(failed_assumptions, assumption_locals)
-                    longrepr = ["{}\n{}\n\n".format(assumption, "\n".join(flocals))
+                    longrepr = ["{0}\n{1}\n\n".format(assumption, "\n".join(flocals))
                                 for assumption, flocals in assume_data]
                 else:
                     longrepr = ["\n\n".join(failed_assumptions)]
