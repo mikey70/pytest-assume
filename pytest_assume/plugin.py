@@ -50,7 +50,7 @@ def pytest_namespace():
             'assume': assume}
 
 
-@pytest.mark.hookwrapper
+@pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_runtest_makereport(item, call):
     """
     Check if the test failed, if it didn't fail, and there are
