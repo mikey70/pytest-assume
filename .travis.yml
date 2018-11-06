@@ -6,7 +6,16 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
-install: 
-  - "pip install pytest"
-  - "pip install -q -e . "
-script: "py.test tests/"
+  - "3.6"
+  - "3.7"
+
+env:
+  - PYTEST=3.6.4
+  - PYTEST=3.7.4
+  - PYTEST=3.8.2
+  - PYTEST=3.9.3
+  - PYTEST=3.10.0
+install:
+  - "pip install -q pytest==$PYTEST"
+  - "pip install -q -e ."
+script: "pytest tests/"
