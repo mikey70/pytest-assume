@@ -8,46 +8,47 @@ try:
 except ImportError:
     saferepr = repr
 
+_FAILED_ASSUMPTIONS = []
+_ASSUMPTION_LOCALS = []
 
-def pytest_namespace():
+
+def assume(expr, msg=''):
+    """
+    Checks the expression, if it's false, add it to the
+    list of failed assumptions. Also, add the locals at each failed
+    assumption, if showlocals is set.
+
+    :param expr: Expression to 'assert' on.
+    :param msg: Message to display if the assertion fails.
+    :return: None
+    """
+    if not expr:
+        (frame, filename, line, funcname, contextlist) = inspect.stack()[1][0:5]
+        # get filename, line, and context
+        filename = os.path.relpath(filename)
+        context = contextlist[0].lstrip() if not msg else msg
+        # format entry
+        entry = u"{filename}:{line}: AssumptionFailure\n\t{context}".format(**locals())
+        # add entry
+        _FAILED_ASSUMPTIONS.append(entry)
+        if pytest.config.option.showlocals:
+            # Debatable whether we should display locals for
+            # every failed assertion, or just the final one.
+            # I'm defaulting to per-assumption, just because vars
+            # can easily change between assumptions.
+            pretty_locals = ["%-10s = %s" % (name, saferepr(val))
+                             for name, val in frame.f_locals.items()]
+            _ASSUMPTION_LOCALS.append(pretty_locals)
+
+
+def pytest_configure():
     """
     Add tracking lists to the pytest namespace, so we can
     always access it, as well as the 'assume' function itself.
 
     :return: Dictionary of name: values added to the pytest namespace.
     """
-
-    def assume(expr, msg=''):
-        """
-        Checks the expression, if it's false, add it to the
-        list of failed assumptions. Also, add the locals at each failed
-        assumption, if showlocals is set.
-
-        :param expr: Expression to 'assert' on.
-        :param msg: Message to display if the assertion fails.
-        :return: None
-        """
-        if not expr:
-            (frame, filename, line, funcname, contextlist) = inspect.stack()[1][0:5]
-            # get filename, line, and context
-            filename = os.path.relpath(filename)
-            context = contextlist[0].lstrip() if not msg else msg
-            # format entry
-            entry = "{filename}:{line}: AssumptionFailure\n\t{context}".format(**locals())
-            # add entry
-            pytest._failed_assumptions.append(entry)
-            if pytest.config.option.showlocals:
-                # Debatable whether we should display locals for
-                # every failed assertion, or just the final one.
-                # I'm defaulting to per-assumption, just because the vars
-                # can easily change between assumptions.
-                pretty_locals = ["%-10s = %s" % (name, saferepr(val))
-                                 for name, val in frame.f_locals.items()]
-                pytest._assumption_locals.append(pretty_locals)
-
-    return {'_assumption_locals': [],
-            '_failed_assumptions': [],
-            'assume': assume}
+    pytest.assume = assume
 
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
@@ -65,8 +66,8 @@ def pytest_runtest_makereport(item, call):
     """
     outcome = yield
     report = outcome.get_result()
-    failed_assumptions = getattr(pytest, "_failed_assumptions", [])
-    assumption_locals = getattr(pytest, "_assumption_locals", [])
+    failed_assumptions = _FAILED_ASSUMPTIONS
+    assumption_locals = _ASSUMPTION_LOCALS
     evalxfail = getattr(item, '_evalxfail', None)
     if call.when == "call" and failed_assumptions:
         if evalxfail and evalxfail.wasvalid() and evalxfail.istrue():
@@ -90,7 +91,7 @@ def pytest_runtest_makereport(item, call):
                 report.longrepr = '\n'.join(longrepr)
             report.outcome = "failed"
 
-    if hasattr(pytest, "_failed_assumptions"):
-        del pytest._failed_assumptions[:]
-    if hasattr(pytest, "_assumption_locals"):
-        del pytest._assumption_locals[:]
+    if _FAILED_ASSUMPTIONS:
+        del _FAILED_ASSUMPTIONS[:]
+    if _ASSUMPTION_LOCALS:
+        del _ASSUMPTION_LOCALS[:]
