@@ -27,6 +27,22 @@ def test_failing_expect(testdir):
     assert 'Failed Assumptions: 1' in result.stdout.str()
 
 
+def test_multi_pass_one_failing_expect(testdir):
+    testdir.makepyfile(
+        """
+        import pytest
+        def test_func():
+            pytest.assume("xyz" in "abcdefghijklmnopqrstuvwxyz")
+            pytest.assume(2 == 2)
+            pytest.assume(1 == 2)
+            pytest.assume("xyz" in "abcd")
+        """)
+    result = testdir.runpytest_inprocess()
+    result.assert_outcomes(0, 0, 1)
+    assert '1 failed' in result.stdout.str()
+    assert 'Failed Assumptions: 2' in result.stdout.str()
+
+
 def test_passing_expect_doesnt_cloak_assert(testdir):
     testdir.makepyfile(
         """
@@ -133,3 +149,43 @@ def test_xpass_assumption(testdir):
     result = testdir.runpytest_inprocess()
     outcomes = result.parseoutcomes()
     assert outcomes.get("xpassed", 0) == 1
+
+
+
+def test_bytecode(testdir):
+    testdir.makepyfile(
+        b"""
+        import pytest
+
+        def test_func():
+            pytest.assume(b"\x01" == b"\x5b")
+        """)
+    result = testdir.runpytest_inprocess()
+    result.assert_outcomes(0, 0, 1)
+    assert '1 failed' in result.stdout.str()
+
+
+def test_unicode(testdir):
+    testdir.makepyfile(
+        """
+        import pytest
+
+        def test_func():
+            pytest.assume(u"\x5b" == u"\x5a")
+        """)
+    result = testdir.runpytest_inprocess()
+    result.assert_outcomes(0, 0, 1)
+    assert '1 failed' in result.stdout.str()
+
+def test_mixed_stringtypes(testdir):
+    testdir.makepyfile(
+        """
+        import pytest
+
+        def test_func():
+            pytest.assume(b"\x5b" == u"\x5a")
+        """)
+    result = testdir.runpytest_inprocess()
+    result.assert_outcomes(0, 0, 1)
+    assert '1 failed' in result.stdout.str()
+
