@@ -5,7 +5,8 @@ python:
   - "3.5"
   - "3.6"
   - "3.7"
-
+dist: xenial
+sudo: true
 env:
   - PYTEST=3.6.4
   - PYTEST=3.7.4
