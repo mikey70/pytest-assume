@@ -8,7 +8,7 @@ from setuptools import setup
 setup(
     name='pytest-assume',
     packages=['pytest_assume'],
-    version='1.2',
+    version='1.2.1',
     description='A pytest plugin that allows multiple failures per test',
     author='Brian Okken/Ashley Straw',
     author_email='as.fireflash38@gmail.com',
@@ -24,8 +24,6 @@ setup(
         'Topic :: Software Development :: Testing',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
     ],
     # the following makes a plugin available to py.test
     entry_points={'pytest11': ['assume = pytest_assume.plugin']}
