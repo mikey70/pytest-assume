@@ -51,7 +51,7 @@ def pytest_configure():
     pytest.assume = assume
 
 
-@pytest.hookimpl(hookwrapper=True, tryfirst=True)
+@pytest.hookimpl(hookwrapper=True, trylast=True)
 def pytest_runtest_makereport(item, call):
     """
     Check if the test failed, if it didn't fail, and there are
